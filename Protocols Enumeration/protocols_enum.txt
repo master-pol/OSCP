@@ -1,0 +1,116 @@
+
+Common:
+	
+	1. Check service versions running on open ports (FTP, SMB, SSH, etc.) (1)
+		
+	2. Try found usernames and passwords on all login types like MySQL, phpmyadmin, SSH, FTP, SMB, HTTP forms, LDAP, etc. (2)
+		
+	3. Try admin:admin on each login page (SMB, FTP, HTTP, etc.) (13)
+		
+	4. Brute force credentials using hydra, medusa, etc. for services like SSH, FTP, and web logins (14)
+		
+	5. Always note down found usernames and passwords for later use on FTP, SMB, HTTP, SSH, etc. (25)
+		
+	6. If any application/software directory found on FTP, SMB, or NFS, look for its database file (e.g., Umbraco.sdf) (26)
+		
+	
+FTP:
+	
+	1. Create .ssh folder in user dir via FTP if possible, add authorized_keys, and SSH in with matching private key (3)
+	
+	2. Execute files from FTP on HTTP web if possible; upload .aspx or .php shells for RCE (4)
+	
+	3. For file retrieval, use binary mode before get unless it’s a .txt to avoid corruption → binary then get <filename> (6)
+	
+	4. Run ls -la on FTP to list all files with permissions (8)
+	
+	5. Download file content directly via FTP → get clean.sh - (9)
+	
+	6. Check if you can upload files to FTP and figure out execution paths (11)
+	
+	7. If pub directory exists and is writable, upload your payload there → default path is /var/ftp/pub (12)
+	
+	8. Look for usernames in FTP shares via anonymous login (15)
+	
+	9. Refer FTP enumeration tactics → http://hackviser.com/tactics/pentesting/services/ftp (16)
+	
+	10. Use found usernames as passwords on FTP (e.g., admin:admin) (17)
+	
+	11. If nothing works, brute force FTP logins with found usernames using default creds from → https://github.com/danielmiessler/SecLists/blob/master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt (18)
+	
+
+SMB:
+	
+	1. If files on SMB shares are too large, mount the share on Kali instead of copying (20)
+	
+	2. Search for keywords like “password” in files from FTP, SMB, or machine itself → strings <file> | grep -i password (5)
+	
+	3. If any folder in SMB/FTP is writable and linked to a website, drop malicious files there for potential RCE (7)
+	
+	4. Enumerate each and every folder in FTP and SMB shares (10)
+	
+	5. Upload files to both FTP and SMB when possible to test for write/RCE opportunities (19)
+	
+	6. NETLOGON and SYSVOL shares are standard on a Domain Controller — check them if accessible (21)
+	
+	7. Banner grabbing via → crackmapexec smb <ip> --shares (22)
+	
+	8. Run rpcclient -U "" -N <ip> and RID brute force with → netexec smb <ip> -u '' -p '' --rid-brute (23)
+	
+	9. Mount SMB shares with valid creds for better file access (24)
+	
+	10. Run Nmap vuln scan against SMB port for known vulns like MS17-010 (27)
+	
+	11. Use ntlm_theft.py for forced authentication via writable SMB share access → https://github.com/Greenwolf/ntlm_theft/blob/master/ntlm_theft.py (28)
+	
+	
+SMTP:
+	
+	1. Use smtp-user-enum for enumerating SMTP users (29)
+	
+	
+Finger:
+	
+	1. Use finger-user-enum.pl from Pentestmonkey for user enumeration (30)
+	
+Redis: 
+	
+	1. Enumerate Redis services and check HackTricks/other resources for techniques (31)
+	
+	2. Redis password can be in /etc/redis/redis.conf → requirepass 'Ready4Redis?' (38)
+	
+	
+DNS:
+	
+	1. If DNS (port 53) is open on TCP, attempt zone transfer via nslookup or dig axfr and fuzz subdomains using ffuf or gobuster (33)
+	
+	
+RSIP:
+
+	1. RSIP allows listing, creating, and setting user passwords → nc <ip> 4555 and try root:root creds (34)
+	
+	2. If password changed via RSIP, test on SSH and then on POP3/SMTP (34)
+	
+	
+NFS:
+
+	1. Check for mountable NFS (ports 111, 2049) shares with → showmount -a <ip> and showmount -e <ip> (35)
+	
+	
+SSH:
+	
+	1. SSH user enumeration possible till version 7.7 (36)
+	
+	
+SNMP:
+	
+	1. Run snmpwalk and snmpbulkwalk; carefully review output for keywords like user, bin, bash, passwd, id_rsa, etc. (37)
+	
+	
+MySQL:
+	
+	1. If MySQL remote access is available, attempt reverse shell if privileges permit; try different command techniques (38)
+	
+	
+
+	

